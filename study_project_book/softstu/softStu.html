@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>图书管理系统</title>
+    <style>
+        /* 100% 完整保留你原本所有的精美高级 CSS 样式 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Microsoft YaHei", "PingFang SC", Arial, sans-serif;
+        }
+
+        :root {
+            --primary: #0ea5e9;
+            --primary-dark: #0284c7;
+            --primary-light: #e0f2fe;
+            --bg: #f1f7fb;
+            --card: #ffffff;
+            --text: #1f2937;
+            --muted: #64748b;
+            --border: #dbeafe;
+            --shadow: 0 12px 30px rgba(15, 23, 42, 0.10);
+        }
+
+        body {
+            min-height: 100vh;
+            color: var(--text);
+            background:
+                radial-gradient(circle at top left, rgba(14, 165, 233, 0.16), transparent 30%),
+                linear-gradient(135deg, #eefaff 0%, #f8fbff 45%, #eaf7f7 100%);
+            overflow-x: hidden;
+        }
+
+        .page {
+            width: min(1280px, calc(100% - 48px));
+            min-height: 100vh;
+            margin: 0 auto;
+            display: grid;
+            grid-template-rows: 74px 1fr 52px;
+            gap: 18px;
+            padding: 18px 0;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 28px;
+            border: 1px solid rgba(14, 165, 233, 0.18);
+            border-radius: 18px;
+            background: rgba(255, 255, 255, 0.84);
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(10px);
+        }
+
+        .header-title {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            font-size: 24px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            color: #075985;
+        }
+
+        .logo {
+            width: 42px;
+            height: 42px;
+            display: grid;
+            place-items: center;
+            border-radius: 14px;
+            color: #fff;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            box-shadow: 0 8px 18px rgba(14, 165, 233, 0.30);
+        }
+
+        .header-subtitle {
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: 230px minmax(0, 1fr);
+            gap: 20px;
+            min-height: 0;
+        }
+
+        .sidebar {
+            border: 1px solid rgba(14, 165, 233, 0.16);
+            border-radius: 18px;
+            background: rgba(255, 255, 255, 0.82);
+            box-shadow: var(--shadow);
+            padding: 18px;
+        }
+
+        .sidebar-title {
+            padding: 10px 12px 18px;
+            color: #0369a1;
+            font-size: 15px;
+            font-weight: 700;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 14px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 14px 16px;
+            margin: 10px 0;
+            cursor: pointer;
+            color: #0369a1;
+            border-radius: 14px;
+            transition: all 0.18s ease;
+            user-select: none;
+            font-size: 16px;
+        }
+
+        .nav-item:hover {
+            background-color: var(--primary-light);
+            transform: translateX(3px);
+        }
+
+        .nav-item.active {
+            color: #fff;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            box-shadow: 0 8px 18px rgba(14, 165, 233, 0.25);
+        }
+
+        .main {
+            min-width: 0;
+            border: 1px solid rgba(14, 165, 233, 0.16);
+            border-radius: 18px;
+            background: rgba(255, 255, 255, 0.74);
+            box-shadow: var(--shadow);
+            padding: 28px;
+            overflow: auto;
+        }
+
+        .view {
+            display: none;
+            width: 100%;
+            animation: fadeIn 0.18s ease-in;
+        }
+
+        .view.active { display: block; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .section-head {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 20px;
+            margin-bottom: 22px;
+        }
+
+        .section-head h2 {
+            font-size: 24px;
+            color: #0f172a;
+        }
+
+        .section-head p {
+            margin-top: 6px;
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        .stat-card {
+            min-width: 130px;
+            padding: 14px 18px;
+            border-radius: 16px;
+            background: #f8fbff;
+            border: 1px solid var(--border);
+            text-align: center;
+        }
+
+        .stat-card strong {
+            display: block;
+            font-size: 24px;
+            color: var(--primary-dark);
+        }
+
+        .table-wrap {
+            width: 100%;
+            overflow-x: auto;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            background: var(--card);
+        }
+
+        table {
+            width: 100%;
+            min-width: 720px;
+            border-collapse: collapse;
+            background-color: #fff;
+        }
+
+        th, td {
+            padding: 16px 18px;
+            border-bottom: 1px solid #e5eef8;
+            text-align: center;
+            font-size: 15px;
+        }
+
+        th {
+            position: sticky;
+            top: 0;
+            z-index: 1;
+            background-color: #eff8ff;
+            color: #075985;
+            font-weight: 800;
+        }
+
+        tr:hover td { background-color: #f8fcff; }
+        tr:last-child td { border-bottom: none; }
+
+        .form-container,
+        .placeholder-card {
+            width: min(560px, 100%);
+            margin: 0 auto;
+            background-color: var(--card);
+            padding: 30px;
+            border-radius: 18px;
+            border: 1px solid var(--border);
+            box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
+        }
+
+        .form-container p { margin: 18px 0; }
+
+        .form-container label {
+            display: block;
+            margin-bottom: 8px;
+            color: #334155;
+            font-weight: 700;
+        }
+
+        .form-container input {
+            width: 100%;
+            padding: 13px 14px;
+            border: 1px solid #cbd5e1;
+            border-radius: 12px;
+            font-size: 16px;
+            outline: none;
+            transition: 0.18s ease;
+        }
+
+        .form-container input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.12);
+        }
+
+        .form-container button {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 700;
+            margin-top: 14px;
+            transition: 0.18s ease;
+        }
+
+        .form-container button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 18px rgba(34, 197, 94, 0.22);
+        }
+
+        .placeholder-card h2 {
+            color: #0f172a;
+            margin-bottom: 10px;
+        }
+
+        .placeholder-card p {
+            color: var(--muted);
+            line-height: 1.8;
+        }
+
+        .footer {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            color: #475569;
+            font-size: 14px;
+            padding: 0 20px;
+            border-radius: 16px;
+            border: 1px solid rgba(14, 165, 233, 0.16);
+            background: rgba(255, 255, 255, 0.78);
+        }
+
+        @media (min-width: 1440px) {
+            .page { width: min(1400px, calc(100% - 72px)); }
+            .container { grid-template-columns: 250px minmax(0, 1fr); }
+            .main { padding: 36px; }
+            table { min-width: 860px; }
+        }
+
+        @media (max-width: 900px) {
+            .page {
+                width: min(100% - 24px, 900px);
+                grid-template-rows: auto 1fr auto;
+                padding: 12px 0;
+            }
+
+            .header {
+                align-items: flex-start;
+                flex-direction: column;
+                gap: 8px;
+                padding: 18px;
+            }
+
+            .container {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                display: grid;
+                grid-template-columns: repeat(4, minmax(110px, 1fr));
+                gap: 10px;
+                overflow-x: auto;
+                padding: 12px;
+            }
+
+            .sidebar-title { display: none; }
+            .nav-item { justify-content: center; margin: 0; white-space: nowrap; }
+            .section-head { align-items: flex-start; flex-direction: column; }
+        }
+
+        @media (max-width: 600px) {
+            .sidebar { grid-template-columns: repeat(2, 1fr); }
+            .main { padding: 18px; }
+            .form-container, .placeholder-card { padding: 22px; }
+            .header-title { font-size: 21px; }
+            .footer { justify-content: center; text-align: center; padding: 14px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="page" id="app">
+        <div class="header">
+            <div class="header-title"><span class="logo">图</span>图书管理系统</div>
+            <div class="header-subtitle">桌面端自适应布局 · 图书信息管理</div>
+        </div>
+
+        <div class="container">
+            <div class="sidebar">
+                <div class="sidebar-title">功能菜单</div>
+                <div class="nav-item" :class="{ active: activeView === 'display' }" @click="switchView('display')">图书显示</div>
+                <div class="nav-item" :class="{ active: activeView === 'input' }" @click="switchView('input')">图书录入</div>
+                <div class="nav-item" :class="{ active: activeView === 'delete' }" @click="switchView('delete')">图书删除</div>
+                <div class="nav-item" :class="{ active: activeView === 'update' }" @click="switchView('update')">图书修改</div>
+            </div>
+
+            <div class="main">
+                <div id="display" class="view" :class="{ active: activeView === 'display' }" v-show="activeView === 'display'">
+                    <div class="section-head">
+                        <div>
+                            <h2>图书列表</h2>
+                            <p>电脑屏幕下表格会自动拉宽，内容区域不会被页脚遮挡。</p>
+                        </div>
+                        <div class="stat-card"><strong>{{ bookCount }}</strong><span>当前图书</span></div>
+                    </div>
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr><th>图书编号</th><th>书名</th><th>作者</th><th>价格</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr v-if="bookList.length === 0">
+                                    <td colspan="4" style="color: #999;">正在连接数据库拉取图书列表数据...</td>
+                                </tr>
+                                <tr v-for="item in bookList" :key="item.book_id">
+                                    <td>{{ item.book_id }}</td>
+                                    <td>{{ item.title }}</td>
+                                    <td>{{ item.author }}</td>
+                                    <td>{{ item.price }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div id="input" class="view" :class="{ active: activeView === 'input' }" v-show="activeView === 'input'">
+                    <div class="section-head">
+                        <div>
+                            <h2>图书录入</h2>
+                            <p>录入后会自动回到图书显示页面。</p>
+                        </div>
+                    </div>
+                    <div class="form-container">
+                        <form id="stuForm" @submit.prevent="addBook">
+                            <p>
+                                <label>图书编号</label>
+                                <input type="text" v-model="newBook.book_id" placeholder="请输入图书编号 (例: B001)" required>
+                            </p>
+                            <p>
+                                <label>书名</label>
+                                <input type="text" v-model="newBook.title" placeholder="请输入书名" required>
+                            </p>
+                            <p>
+                                <label>作者</label>
+                                <input type="text" v-model="newBook.author" placeholder="请输入作者" required>
+                            </p>
+                            <p>
+                                <label>价格</label>
+                                <input type="number" step="0.01" v-model="newBook.price" placeholder="请输入价格" required>
+                            </p>
+                            <button type="submit">提交录入</button>
+                        </form>
+                    </div>
+                </div>
+
+                <div id="delete" class="view" :class="{ active: activeView === 'delete' }" v-show="activeView === 'delete'">
+                    <div class="placeholder-card">
+                        <h2>图书删除功能</h2>
+                        <p>请选择要删除的图书。当前页面已完成电脑端布局适配，后续可以继续接入删除逻辑。</p>
+                    </div>
+                </div>
+
+                <div id="update" class="view" :class="{ active: activeView === 'update' }" v-show="activeView === 'update'">
+                    <div class="placeholder-card">
+                        <h2>图书修改功能</h2>
+                        <p>请选择要修改的图书。当前页面已完成电脑端布局适配，后续可以继续接入修改逻辑。</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">江西理工大学24级软件开发 @ Version 1.0</div>
+    </div>
+
+    <script src="vue.js"></script>
+    <script src="axios.js"></script>
+    <script src="index.js"></script>
+</body>
+</html>
